@@ -7,7 +7,7 @@ namespace Quote_Tracker.Models
     {
         public int Id { get; set; }
         public required string Text { get; set; }
-        public required string Person { get; set; }
+        public string? Person { get; set; }
         public int? Chapter { get; set; }
         public int? Verse { get; set; }
         public int? Page { get; set; }
