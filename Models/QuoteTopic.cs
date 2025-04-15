@@ -1,9 +1,8 @@
 namespace Quote_Tracker.Models;
 public class QuoteTopic
 {
-    public int QuoteId { get; set; }
-    public required Quote Quote { get; set; }
-
-    public int TopicId { get; set; }
-    public required Topic Topic { get; set; }
+    public required int QuoteId { get; set; }
+    public required int TopicId { get; set; }
+    public virtual Quote Quote { get; set; }
+    public virtual Topic Topic { get; set; }
 }
