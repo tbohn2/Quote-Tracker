@@ -72,54 +72,60 @@ namespace Quote_Tracker.Controllers
             return CreatedAtAction(nameof(GetAllQuotes), new { id = newQuote.Id }, newQuote);
         }
 
-        // [HttpPut("{id}")]
-        // public async Task<IActionResult> UpdateQuote(int id, [FromBody] Quote updatedQuote)
-        // {
-        //     if (updatedQuote.Id <= 0)
-        //     {
-        //         return BadRequest("Invalid quote ID.");
-        //     }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateQuote(int id, [FromBody] UpdateQuoteRequest updatedQuote)
+        {
+            if (updatedQuote.Id <= 0)
+            {
+                return BadRequest("Invalid quote ID.");
+            }
 
-        //     if (!ModelState.IsValid)
-        //     {
-        //         return BadRequest("Model state not valid");
-        //     }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Model state not valid");
+            }
 
-        //     var quoteToUpdate = await _context.Quotes.FindAsync(id);
+            var quoteToUpdate = await _context.Quotes.FindAsync(id);
 
-        //     if (quoteToUpdate == null)
-        //     {
-        //         return NotFound("Quote not found.");
-        //     }
+            if (quoteToUpdate == null)
+            {
+                return NotFound("Quote not found.");
+            }
 
-        //     quoteToUpdate.Text = updatedQuote.Text;
-        //     quoteToUpdate.Author = updatedQuote.Author;
-        //     quoteToUpdate.TopicId = updatedQuote.TopicId;
+            foreach (var property in typeof(Quote).GetProperties())
+            {
+                var newValue = property.GetValue(updatedQuote);
+                if (newValue != null)
+                {
+                    property.SetValue(quoteToUpdate, newValue);
+                }
+            }
 
-        //     await _context.SaveChangesAsync();
+            _context.Quotes.Update(quoteToUpdate);
+            await _context.SaveChangesAsync();
 
-        //     return NoContent();
-        // }
+            return Ok(quoteToUpdate);
+        }
 
-        // [HttpDelete("{id}")]
-        // public async Task<IActionResult> DeleteQuote(int id)
-        // {
-        //     if (id <= 0)
-        //     {
-        //         return BadRequest("Invalid quote ID.");
-        //     }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteQuote(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid quote ID.");
+            }
 
-        //     var quoteToDelete = await _context.Quotes.FindAsync(id);
+            var quoteToDelete = await _context.Quotes.FindAsync(id);
 
-        //     if (quoteToDelete == null)
-        //     {
-        //         return NotFound($"No quote found with ID {id}");
-        //     }
+            if (quoteToDelete == null)
+            {
+                return NotFound($"No quote found with ID {id}");
+            }
 
-        //     _context.Quotes.Remove(quoteToDelete);
-        //     await _context.SaveChangesAsync();
+            _context.Quotes.Remove(quoteToDelete);
+            await _context.SaveChangesAsync();
 
-        //     return NoContent();
-        // }
+            return NoContent();
+        }
     }
 }
