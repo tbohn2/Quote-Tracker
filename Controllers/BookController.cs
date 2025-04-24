@@ -50,28 +50,29 @@ namespace Quote_Tracker.Controllers
             return CreatedAtAction(nameof(GetAllBooks), new { id = newBook.Id }, newBook);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBook(int id, [FromBody] Book updatedBook)
+        [HttpPut]
+        public async Task<IActionResult> UpdateBook([FromBody] UpdateBookRequest updatedBook)
         {
-            if (id <= 0)
-            {
-                return BadRequest("Invalid book ID.");
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest("Model state not valid");
             }
 
-            var bookToUpdate = await _context.Books.FindAsync(id);
+            var bookToUpdate = await _context.Books.FindAsync(updatedBook.Id);
 
             if (bookToUpdate == null)
             {
                 return NotFound("Book not found.");
             }
 
-            bookToUpdate.Title = updatedBook.Title;
-            bookToUpdate.Author = updatedBook.Author;
+            foreach (var property in typeof(UpdateBookRequest).GetProperties())
+            {
+                var newValue = property.GetValue(updatedBook);
+                if (newValue != null)
+                {
+                    property.SetValue(bookToUpdate, newValue);
+                }
+            }
 
             await _context.SaveChangesAsync();
 
