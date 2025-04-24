@@ -66,7 +66,7 @@ namespace Quote_Tracker.Controllers
                 TopicId = topicId
             }).ToList();
 
-            _context.Quotes.Add(newQuote);
+            _context.QuoteTopics.AddRange(quoteTopics);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetAllQuotes), new { id = newQuote.Id }, newQuote);
@@ -75,29 +75,53 @@ namespace Quote_Tracker.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateQuote(int id, [FromBody] UpdateQuoteRequest updatedQuote)
         {
-            if (updatedQuote.Id <= 0)
-            {
-                return BadRequest("Invalid quote ID.");
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest("Model state not valid");
             }
 
             var quoteToUpdate = await _context.Quotes.FindAsync(id);
-
             if (quoteToUpdate == null)
             {
                 return NotFound("Quote not found.");
             }
 
-            foreach (var property in typeof(Quote).GetProperties())
+            foreach (var property in typeof(UpdateQuoteRequest).GetProperties())
             {
                 var newValue = property.GetValue(updatedQuote);
                 if (newValue != null)
                 {
-                    property.SetValue(quoteToUpdate, newValue);
+                    if (property.Name == "TopicIds" && newValue is List<int> topicIds)
+                    {
+                        var existingQuoteTopics = await _context.QuoteTopics
+                            .Where(qt => qt.QuoteId == quoteToUpdate.Id)
+                            .ToListAsync();
+
+                        var quoteTopicsToRemove = existingQuoteTopics
+                            .Where(qt => !topicIds.Contains(qt.TopicId))
+                            .ToList();
+
+                        if (quoteTopicsToRemove.Any())
+                        {
+                            _context.QuoteTopics.RemoveRange(quoteTopicsToRemove);
+                        }
+
+                        foreach (var topicId in topicIds)
+                        {
+                            if (!existingQuoteTopics.Any(qt => qt.TopicId == topicId))
+                            {
+                                _context.QuoteTopics.Add(new QuoteTopic
+                                {
+                                    QuoteId = quoteToUpdate.Id,
+                                    TopicId = topicId
+                                });
+                            }
+                        }
+                    }
+                    else
+                    {
+                        property.SetValue(quoteToUpdate, newValue);
+                    }
                 }
             }
 
