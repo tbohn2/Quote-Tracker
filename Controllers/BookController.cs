@@ -70,13 +70,17 @@ namespace Quote_Tracker.Controllers
                 var newValue = property.GetValue(updatedBook);
                 if (newValue != null)
                 {
-                    property.SetValue(bookToUpdate, newValue);
+                    var correspondingProperty = typeof(Book).GetProperty(property.Name);
+                    if (correspondingProperty != null && correspondingProperty.CanWrite)
+                    {
+                        correspondingProperty.SetValue(bookToUpdate, newValue);
+                    }
                 }
             }
 
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(bookToUpdate);
         }
 
         [HttpDelete("{id}")]

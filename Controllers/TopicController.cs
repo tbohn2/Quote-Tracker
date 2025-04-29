@@ -49,15 +49,15 @@ namespace Quote_Tracker.Controllers
             return CreatedAtAction(nameof(GetAllTopics), new { id = newTopic.Id }, newTopic);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTopic(int id, [FromBody] UpdateTopicRequest updatedTopic)
+        [HttpPut()]
+        public async Task<IActionResult> UpdateTopic([FromBody] UpdateTopicRequest updatedTopic)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest("Model state not valid");
             }
 
-            var topicToUpdate = await _context.Topics.FindAsync(id);
+            var topicToUpdate = await _context.Topics.FindAsync(updatedTopic.Id);
             if (topicToUpdate == null)
             {
                 return NotFound("Topic not found.");
