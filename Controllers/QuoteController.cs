@@ -21,14 +21,34 @@ namespace Quote_Tracker.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllQuotes()
         {
-            var quotes = await _context.Quotes.ToListAsync();
+            var quoteList = await _context.Quotes
+                .Select(quote => new GetQuoteRequest
+                {
+                    Id = quote.Id,
+                    Text = quote.Text,
+                    Person = quote.Person,
+                    Chapter = quote.Chapter,
+                    Verse = quote.Verse,
+                    Page = quote.Page,
+                    CreatedAt = quote.CreatedAt,
+                    BookId = quote.BookId,
+                    Book = new GetBookRequest
+                    {
+                        Id = quote.Book.Id,
+                        Title = quote.Book.Title,
+                        Author = quote.Book.Author
+                    },
+                    Topics = quote.QuoteTopics
+                        .Select(qt => new GetTopicRequest
+                        {
+                            Id = qt.Topic.Id,
+                            Name = qt.Topic.Name
+                        })
+                        .ToList()
+                })
+                .ToListAsync();
 
-            if (quotes.Count == 0)
-            {
-                return Ok("No quotes found");
-            }
-
-            return Ok(quotes);
+            return Ok(quoteList);
         }
 
         [HttpPost]
@@ -54,7 +74,6 @@ namespace Quote_Tracker.Controllers
                 Verse = request.Verse ?? null,
                 Page = request.Page ?? null,
                 BookId = request.BookId,
-                Book = book,
             };
 
             _context.Quotes.Add(newQuote);
@@ -69,7 +88,7 @@ namespace Quote_Tracker.Controllers
             _context.QuoteTopics.AddRange(quoteTopics);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetAllQuotes), new { id = newQuote.Id }, newQuote);
+            return Ok();
         }
 
         [HttpPut("{id}")]
