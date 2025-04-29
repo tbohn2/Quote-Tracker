@@ -13,7 +13,7 @@ namespace Quote_Tracker.Models
         public int? Page { get; set; }
         public DateTime CreatedAt { get; set; }
         public required int BookId { get; set; }
-        public required Book Book { get; set; }
+        public Book Book { get; set; } = null!;
         public List<QuoteTopic> QuoteTopics { get; set; } = new();
     }
 }

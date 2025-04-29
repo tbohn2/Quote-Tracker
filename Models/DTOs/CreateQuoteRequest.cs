@@ -2,7 +2,7 @@ namespace Quote_Tracker.Models
 {
     public class CreateQuoteRequest
     {
-        public required string Text { get; set; } = string.Empty;
+        public required string Text { get; set; }
         public string? Person { get; set; }
         public int? Chapter { get; set; }
         public int? Verse { get; set; }
