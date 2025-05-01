@@ -12,6 +12,6 @@ namespace Quote_Tracker.Models
         public int? Verse { get; set; }
         public int? Page { get; set; }
         public int? BookId { get; set; }
-        public List<int>? TopicIds { get; set; }
+        public List<int> TopicIds { get; set; } = [];
     }
 }

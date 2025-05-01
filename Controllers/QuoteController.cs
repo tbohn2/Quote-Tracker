@@ -91,15 +91,15 @@ namespace Quote_Tracker.Controllers
             return Ok();
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateQuote(int id, [FromBody] UpdateQuoteRequest updatedQuote)
+        [HttpPut()]
+        public async Task<IActionResult> UpdateQuote([FromBody] UpdateQuoteRequest updatedQuote)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest("Model state not valid");
             }
 
-            var quoteToUpdate = await _context.Quotes.FindAsync(id);
+            var quoteToUpdate = await _context.Quotes.Include(q => q.QuoteTopics).FirstOrDefaultAsync(q => q.Id == updatedQuote.Id);
             if (quoteToUpdate == null)
             {
                 return NotFound("Quote not found.");
@@ -107,6 +107,8 @@ namespace Quote_Tracker.Controllers
 
             foreach (var property in typeof(UpdateQuoteRequest).GetProperties())
             {
+                if (property.Name == "Id") { continue; }
+
                 var newValue = property.GetValue(updatedQuote);
                 if (newValue != null)
                 {
@@ -117,15 +119,15 @@ namespace Quote_Tracker.Controllers
                             .ToListAsync();
 
                         var quoteTopicsToRemove = existingQuoteTopics
-                            .Where(qt => !topicIds.Contains(qt.TopicId))
+                            .Where(qt => !updatedQuote.TopicIds.Contains(qt.TopicId))
                             .ToList();
 
-                        if (quoteTopicsToRemove.Any())
+                        if (quoteTopicsToRemove.Count != 0)
                         {
                             _context.QuoteTopics.RemoveRange(quoteTopicsToRemove);
                         }
 
-                        foreach (var topicId in topicIds)
+                        foreach (var topicId in updatedQuote.TopicIds)
                         {
                             if (!existingQuoteTopics.Any(qt => qt.TopicId == topicId))
                             {
@@ -139,7 +141,12 @@ namespace Quote_Tracker.Controllers
                     }
                     else
                     {
-                        property.SetValue(quoteToUpdate, newValue);
+                        var correspondingProperty = typeof(Quote).GetProperty(property.Name);
+
+                        if (correspondingProperty != null && correspondingProperty.CanWrite)
+                        {
+                            correspondingProperty.SetValue(quoteToUpdate, newValue);
+                        }
                     }
                 }
             }
@@ -147,7 +154,7 @@ namespace Quote_Tracker.Controllers
             _context.Quotes.Update(quoteToUpdate);
             await _context.SaveChangesAsync();
 
-            return Ok(quoteToUpdate);
+            return Ok();
         }
 
         [HttpDelete("{id}")]
