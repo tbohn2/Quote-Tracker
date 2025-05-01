@@ -1,8 +1,17 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <input id="search" type="text" value="">
+    <select name="sort-select" id="sort-select">
+        <option value="topic">Topic</option>
+        <option value="book">Book</option>
+    </select>
+
+    <div id="quotes"></div>
+
+    <button id="launch-add-modal">Add Quote</button>
+    <button class="add-book">Add Book</button>
+    <button class="add-topic">Add Topic</button>
 </div>
