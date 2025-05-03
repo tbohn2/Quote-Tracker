@@ -1,4 +1,47 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿let quotes = [];
+let books = [];
 
-// Write your JavaScript code.
+async function fetchAndSetBooks() {
+    const response = await fetch('api/book', {
+        method: 'GET',
+        content: 'application/json'
+    })
+    const data = await response.json();
+    books = data;
+}
+
+async function fetchAndSetQuotes() {
+    const response = await fetch('api/quote', {
+        method: 'GET',
+        content: 'application/json'
+    })
+    const data = await response.json();
+    quotes = data;
+}
+
+function renderBooks() {
+    const bookHeaders = books.map(book => {
+        const display = `
+            <div id=${`book${book.id}`} class="d-flex justify-content-between">
+                <h2>${book.title}</h2>
+                <h2>${book.author}</h2>
+            </div>`
+
+        return display;
+    }).join('');
+
+    $('#quotes').append(bookHeaders);
+}
+
+function renderQuotes() {
+    console.log(quotes);
+}
+
+
+$(document).ready(async function () {
+    await fetchAndSetBooks();
+    // await fetchAndSetQuotes();
+    renderBooks();
+    // renderQuotes();
+}
+)
