@@ -14,3 +14,7 @@ body {
 .header-img {
   height: 100px;
 }
+
+.quote-row {
+  border: 1px solid var(--light);
+}
