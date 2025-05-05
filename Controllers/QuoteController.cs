@@ -22,7 +22,7 @@ namespace Quote_Tracker.Controllers
         public async Task<IActionResult> GetAllQuotes()
         {
             var quoteList = await _context.Quotes
-                .Select(quote => new GetQuoteRequest
+                .Select(quote => new GetQuote
                 {
                     Id = quote.Id,
                     Text = quote.Text,
@@ -32,14 +32,14 @@ namespace Quote_Tracker.Controllers
                     Page = quote.Page,
                     CreatedAt = quote.CreatedAt,
                     BookId = quote.BookId,
-                    Book = new GetBookRequest
+                    Book = new GetBook
                     {
                         Id = quote.Book.Id,
                         Title = quote.Book.Title,
                         Author = quote.Book.Author
                     },
                     Topics = quote.QuoteTopics
-                        .Select(qt => new GetTopicRequest
+                        .Select(qt => new GetTopic
                         {
                             Id = qt.Topic.Id,
                             Name = qt.Topic.Name
@@ -52,7 +52,7 @@ namespace Quote_Tracker.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateQuote([FromBody] CreateQuoteRequest request)
+        public async Task<IActionResult> CreateQuote([FromBody] CreateQuote request)
         {
             if (!ModelState.IsValid)
             {
@@ -92,7 +92,7 @@ namespace Quote_Tracker.Controllers
         }
 
         [HttpPut()]
-        public async Task<IActionResult> UpdateQuote([FromBody] UpdateQuoteRequest updatedQuote)
+        public async Task<IActionResult> UpdateQuote([FromBody] UpdateQuote updatedQuote)
         {
             if (!ModelState.IsValid)
             {
@@ -105,7 +105,7 @@ namespace Quote_Tracker.Controllers
                 return NotFound("Quote not found.");
             }
 
-            foreach (var property in typeof(UpdateQuoteRequest).GetProperties())
+            foreach (var property in typeof(UpdateQuote).GetProperties())
             {
                 if (property.Name == "Id") { continue; }
 

@@ -1,6 +1,6 @@
 namespace Quote_Tracker.Models
 {
-    public class UpdateBookRequest
+    public class UpdateBook
     {
         public required int Id { get; set; }
         public string? Title { get; set; }

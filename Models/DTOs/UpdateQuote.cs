@@ -3,7 +3,7 @@ using System.ComponentModel;
 namespace Quote_Tracker.Models
 
 {
-    public class UpdateQuoteRequest
+    public class UpdateQuote
     {
         public required int Id { get; set; }
         public string? Text { get; set; } = string.Empty;

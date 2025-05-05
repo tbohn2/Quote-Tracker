@@ -31,7 +31,7 @@ namespace Quote_Tracker.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateBook([FromBody] CreateBookRequest request)
+        public async Task<IActionResult> CreateBook([FromBody] CreateBook request)
         {
             if (string.IsNullOrEmpty(request.Title))
             {
@@ -52,7 +52,7 @@ namespace Quote_Tracker.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateBook([FromBody] UpdateBookRequest updatedBook)
+        public async Task<IActionResult> UpdateBook([FromBody] UpdateBook updatedBook)
         {
             if (!ModelState.IsValid)
             {
@@ -66,7 +66,7 @@ namespace Quote_Tracker.Controllers
                 return NotFound("Book not found.");
             }
 
-            foreach (var property in typeof(UpdateBookRequest).GetProperties())
+            foreach (var property in typeof(UpdateBook).GetProperties())
             {
                 var newValue = property.GetValue(updatedBook);
                 if (newValue != null)

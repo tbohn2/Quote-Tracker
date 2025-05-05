@@ -1,7 +1,11 @@
+using System.ComponentModel;
+
 namespace Quote_Tracker.Models
+
 {
-    public class CreateTopicRequest
+    public class UpdateTopic
     {
+        public int Id { get; set; }
         public required string Name { get; set; }
     }
 }
