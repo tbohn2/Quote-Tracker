@@ -20,7 +20,29 @@ namespace Quote_Tracker.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllBooks()
         {
-            var books = await _context.Books.OrderBy(b => b.PriorityIndex).ToListAsync();
+            var books = await _context.Books
+                .OrderBy(b => b.PriorityIndex)
+                .Include(b => b.Quotes)
+                .Select(b => new GetBook
+                {
+                    Id = b.Id,
+                    Title = b.Title,
+                    Author = b.Author,
+                    PriorityIndex = b.PriorityIndex,
+                    Quotes = b.Quotes.Select(q => new GetQuoteByBook
+                    {
+                        Id = q.Id,
+                        Text = q.Text,
+                        Person = q.Person,
+                        Chapter = q.Chapter,
+                        Verse = q.Verse,
+                        Page = q.Page,
+                        CreatedAt = q.CreatedAt,
+                        BookId = q.BookId
+                    }).ToList()
+                })
+                .ToListAsync();
+
 
             if (books.Count == 0)
             {
