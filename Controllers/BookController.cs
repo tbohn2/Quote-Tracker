@@ -20,7 +20,7 @@ namespace Quote_Tracker.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllBooks()
         {
-            var books = await _context.Books.ToListAsync();
+            var books = await _context.Books.OrderBy(b => b.PriorityIndex).ToListAsync();
 
             if (books.Count == 0)
             {
@@ -41,7 +41,8 @@ namespace Quote_Tracker.Controllers
             var newBook = new Book
             {
                 Title = request.Title,
-                Author = request.Author
+                Author = request.Author,
+                PriorityIndex = request.PriorityIndex
             };
 
             _context.Books.Add(newBook);
