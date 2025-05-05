@@ -23,8 +23,8 @@ namespace Quote_Tracker.Data
             modelBuilder.Entity<Quote>()
                 .HasOne(q => q.Book)
                 .WithMany(b => b.Quotes)
-                .HasForeignKey(q => q.BookId);
-
+                .HasForeignKey(q => q.BookId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<QuoteTopic>()
                 .HasKey(qt => new { qt.QuoteId, qt.TopicId });
@@ -32,13 +32,14 @@ namespace Quote_Tracker.Data
             modelBuilder.Entity<QuoteTopic>()
                 .HasOne(qt => qt.Quote)
                 .WithMany(q => q.QuoteTopics)
-                .HasForeignKey(qt => qt.QuoteId);
+                .HasForeignKey(qt => qt.QuoteId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<QuoteTopic>()
                 .HasOne(qt => qt.Topic)
                 .WithMany(t => t.QuoteTopics)
-                .HasForeignKey(qt => qt.TopicId);
+                .HasForeignKey(qt => qt.TopicId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
-
     }
 }
