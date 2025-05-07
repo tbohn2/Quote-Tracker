@@ -21,32 +21,7 @@ namespace Quote_Tracker.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllQuotes()
         {
-            var quoteList = await _context.Quotes
-                .Select(quote => new GetQuote
-                {
-                    Id = quote.Id,
-                    Text = quote.Text,
-                    Person = quote.Person,
-                    Chapter = quote.Chapter,
-                    Verse = quote.Verse,
-                    Page = quote.Page,
-                    CreatedAt = quote.CreatedAt,
-                    BookId = quote.BookId,
-                    Book = new GetBook
-                    {
-                        Id = quote.Book.Id,
-                        Title = quote.Book.Title,
-                        Author = quote.Book.Author
-                    },
-                    Topics = quote.QuoteTopics
-                        .Select(qt => new GetTopic
-                        {
-                            Id = qt.Topic.Id,
-                            Name = qt.Topic.Name
-                        })
-                        .ToList()
-                })
-                .ToListAsync();
+            var quoteList = await _context.Quotes.ToListAsync();
 
             return Ok(quoteList);
         }
