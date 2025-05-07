@@ -23,6 +23,8 @@ namespace Quote_Tracker.Controllers
             var books = await _context.Books
                 .OrderBy(b => b.PriorityIndex)
                 .Include(b => b.Quotes)
+                .ThenInclude(q => q.QuoteTopics)
+                .ThenInclude(qt => qt.Topic)
                 .Select(b => new GetBook
                 {
                     Id = b.Id,
@@ -38,7 +40,8 @@ namespace Quote_Tracker.Controllers
                         Verse = q.Verse,
                         Page = q.Page,
                         CreatedAt = q.CreatedAt,
-                        BookId = q.BookId
+                        BookId = q.BookId,
+                        Topics = q.QuoteTopics.Select(qt => qt.Topic.Name).ToList()
                     }).ToList()
                 })
                 .ToListAsync();
