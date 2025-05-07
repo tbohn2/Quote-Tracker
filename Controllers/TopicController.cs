@@ -20,7 +20,27 @@ namespace Quote_Tracker.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllTopics()
         {
-            var Topics = await _context.Topics.ToListAsync();
+            var Topics = await _context.Topics
+                .OrderBy(t => t.Name)
+                .Include(t => t.QuoteTopics)
+                .ThenInclude(qt => qt.Quote)
+                .ThenInclude(q => q.Book)
+                .Select(t => new GetTopic
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Quotes = t.QuoteTopics.Select(qt => new GetQuoteByTopic
+                    {
+                        Id = qt.Quote.Id,
+                        Text = qt.Quote.Text,
+                        Person = qt.Quote.Person,
+                        Chapter = qt.Quote.Chapter,
+                        Verse = qt.Quote.Verse,
+                        CreatedAt = qt.Quote.CreatedAt,
+                        BookName = qt.Quote.Book.Title,
+                        BookPriorityIndex = qt.Quote.Book.PriorityIndex
+                    }).OrderBy(q => q.BookPriorityIndex).ToList()
+                }).ToListAsync();
 
             if (Topics.Count == 0)
             {
@@ -31,7 +51,7 @@ namespace Quote_Tracker.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateTopic([FromBody] CreateTopicRequest request)
+        public async Task<IActionResult> CreateTopic([FromBody] CreateTopic request)
         {
             if (!ModelState.IsValid)
             {
@@ -50,7 +70,7 @@ namespace Quote_Tracker.Controllers
         }
 
         [HttpPut()]
-        public async Task<IActionResult> UpdateTopic([FromBody] UpdateTopicRequest updatedTopic)
+        public async Task<IActionResult> UpdateTopic([FromBody] UpdateTopic updatedTopic)
         {
             if (!ModelState.IsValid)
             {
