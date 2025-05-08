@@ -9,7 +9,9 @@ namespace Quote_Tracker.Models
         public int? Verse { get; set; }
         public int? Page { get; set; }
         public DateTime CreatedAt { get; set; }
-        public required string BookName { get; set; }
+        public required int BookId { get; set; }
+        public required string BookTitle { get; set; }
+        public string? BookAuthor { get; set; }
         public required int BookPriorityIndex { get; set; }
     }
 }

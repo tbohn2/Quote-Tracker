@@ -37,7 +37,9 @@ namespace Quote_Tracker.Controllers
                         Chapter = qt.Quote.Chapter,
                         Verse = qt.Quote.Verse,
                         CreatedAt = qt.Quote.CreatedAt,
-                        BookName = qt.Quote.Book.Title,
+                        BookId = qt.Quote.Book.Id,
+                        BookTitle = qt.Quote.Book.Title,
+                        BookAuthor = qt.Quote.Book.Author,
                         BookPriorityIndex = qt.Quote.Book.PriorityIndex
                     }).OrderBy(q => q.BookPriorityIndex).ToList()
                 }).ToListAsync();
