@@ -25,17 +25,17 @@ function renderBookData() {
     const bookHeaders = dataByBook.map(book => {
         const quoteDisplays = book.quotes.map(quote => {
             const topicDisplays = quote.topics.map(topic => {
-                return `<li>${topic}</li>`
+                return `<li class="text-center p-2 m-1">${topic}</li>`
             }).join('');
 
             const quoteDisplay = `
-                <div id=${quote.Id} class="d-flex justify-content-between">
-                    <div class="d-flex flex-column">
-                        <h3>${quote.chapter ?? ''}:${quote.verse ?? ''}</h3>
-                        <p>${quote.page ?? ''}</p>
+                <div id=${quote.Id} class="d-flex justify-content-between align-items-center px-2 py-1 quote-row">
+                    <div class="d-flex flex-column align-items-start col-3">
+                        <h3>${quote.chapter ?? ''}:${quote.verse ?? ''}</h3>                        
+                        ${quote.page ? `<p>page ${quote.page ?? ''}</p>` : ''}
                     </div>
-                    <p>${quote.text} ${quote.person ? `by ${quote.person}` : ''}</p>
-                    <ul>
+                    <p class="col-6 text-start quote-text mb-0">"${quote.text}" ${quote.person ? `by ${quote.person}` : ''}</p>
+                    <ul class="col-3 d-flex flex-wrap justify-content-center align-items-center mb-0">
                         ${topicDisplays}
                     </ul>
                 </div>`
@@ -44,7 +44,7 @@ function renderBookData() {
         }).join('');
 
         const display = `
-            <div id=${`book${book.id}`} class="d-flex justify-content-between">
+            <div id=${`book${book.id}`} class="d-flex justify-content-between mt-5 mb-2">
                 <h2>${book.title}</h2>
                 <h2>${book.author ?? ''}</h2>                
             </div>

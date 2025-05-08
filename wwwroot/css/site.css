@@ -18,3 +18,23 @@ body {
 .quote-row {
   border: 1px solid var(--light);
 }
+
+.quote-row .quote-text {
+  font-size: 1.25rem;
+}
+
+.quote-row ul {
+  list-style: none;
+}
+
+.quote-row ul li {
+  border: 1px solid var(--light);
+  border-radius: 25px;
+  transition: all 0.5s;
+  cursor: pointer;
+}
+
+.quote-row ul li:hover {
+  background-color: var(--light);
+  color: var(--dark);
+}
