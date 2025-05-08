@@ -1,13 +1,15 @@
-﻿let quotes = [];
-let books = [];
+﻿let sortByBook = true;
+let quotes = [];
+let dataByBook = [];
+let dataByTopic = [];
 
-async function fetchAndSetBooks() {
+async function fetchAndSetDataByBook() {
     const response = await fetch('api/book', {
         method: 'GET',
         content: 'application/json'
     })
     const data = await response.json();
-    books = data;
+    dataByBook = data;
 }
 
 async function fetchAndSetQuotes() {
@@ -19,13 +21,34 @@ async function fetchAndSetQuotes() {
     quotes = data;
 }
 
-function renderBooks() {
-    const bookHeaders = books.map(book => {
+function renderBookData() {
+    const bookHeaders = dataByBook.map(book => {
+        const quoteDisplays = book.quotes.map(quote => {
+            const topicDisplays = quote.topics.map(topic => {
+                return `<li>${topic}</li>`
+            }).join('');
+
+            const quoteDisplay = `
+                <div id=${quote.Id} class="d-flex justify-content-between">
+                    <div class="d-flex flex-column">
+                        <h3>${quote.chapter ?? ''}:${quote.verse ?? ''}</h3>
+                        <p>${quote.page ?? ''}</p>
+                    </div>
+                    <p>${quote.text} ${quote.person ? `by ${quote.person}` : ''}</p>
+                    <ul>
+                        ${topicDisplays}
+                    </ul>
+                </div>`
+
+            return quoteDisplay;
+        }).join('');
+
         const display = `
             <div id=${`book${book.id}`} class="d-flex justify-content-between">
                 <h2>${book.title}</h2>
-                <h2>${book.author}</h2>
-            </div>`
+                <h2>${book.author ?? ''}</h2>                
+            </div>
+            ${quoteDisplays}`
 
         return display;
     }).join('');
@@ -56,14 +79,16 @@ function renderQuotes() {
 
         $(`book${bookId}`).append(display);
     });
+}
 
+async function renderByCategory() {
+    if (sortByBook) {
+        await fetchAndSetDataByBook();
+        renderBookData();
+    }
 }
 
 
-$(document).ready(async function () {
-    await fetchAndSetBooks();
-    await fetchAndSetQuotes();
-    renderBooks();
-    renderQuotes();
-}
-)
+$(document).ready(function () {
+    renderByCategory();
+})
