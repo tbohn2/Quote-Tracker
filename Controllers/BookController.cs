@@ -76,6 +76,33 @@ namespace Quote_Tracker.Controllers
             return CreatedAtAction(nameof(GetAllBooks), new { id = newBook.Id }, newBook);
         }
 
+        [HttpPost("reorder")]
+        public async Task<IActionResult> ReorderBooks([FromBody] List<BookToReorder> Books)
+        {
+            if (Books == null || Books.Count == 0)
+            {
+                return BadRequest("No books provided.");
+            }
+
+            var bookIds = Books.Select(b => b.Id).ToList();
+            var existingBooks = await _context.Books
+                .Where(b => bookIds.Contains(b.Id))
+                .ToListAsync();
+
+            foreach (var book in existingBooks)
+            {
+                var updatedBook = Books.FirstOrDefault(b => b.Id == book.Id);
+                if (updatedBook != null)
+                {
+                    book.PriorityIndex = updatedBook.PriorityIndex;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Book order updated.");
+        }
+
         [HttpPut]
         public async Task<IActionResult> UpdateBook([FromBody] UpdateBook updatedBook)
         {
