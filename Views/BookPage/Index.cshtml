@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] = "Books";
+}
+
+<div class="col-12 d-flex flex-column align-items-center">
+    <h2>Drag to Reorder</h2>
+
+    <button class="button primary my-3">Add Book</button>
+
+    <ul id="book-list" class="col-6 p-0">
+        @foreach (var book in Model)
+        {
+            <li class="book-item text-center p-2" data-id="@book.Id" draggable="true">
+                <a asp-controller="BookPage" asp-action="Details" asp-route-id="@book.Id">
+                    @book.Title
+                </a>
+            </li>
+        }
+    </ul>
+</div>
+
+@section Scripts {
+    <script src="~/js/book.js"></script>
+}
