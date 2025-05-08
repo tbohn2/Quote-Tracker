@@ -8,14 +8,19 @@
     <link rel="icon" type="image/png" href="~/book.png" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Quote_Tracker.styles.css" asp-append-version="true" />
 </head>
 
 <body>
-    <header class="d-flex align-items-center justify-content-evenly">
-        <img class="header-img" src="./book.png" alt="">
-        <h1>Verses To Remember</h1>
-        <img class="header-img" src="./book.png" alt="">
+    <header class="d-flex flex-column align-items-center">
+        <div class="col-12 d-flex align-items-center justify-content-evenly">
+            <img class="header-img" src="./book.png" alt="">
+            <h1><a asp-controller="Home" asp-action="Index">Verses to Remember</a></h1>
+            <img class="header-img" src="./book.png" alt="">
+        </div>
+        <nav>
+            <a asp-controller="BookPage" asp-action="Index">Books</a>
+            @* <a asp-controller="TopicPage" asp-action="Index">Topics</a> *@
+        </nav>
     </header>
 
     <div class="">
