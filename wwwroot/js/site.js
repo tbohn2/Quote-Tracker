@@ -3,22 +3,39 @@ let quotes = [];
 let dataByBook = [];
 let dataByTopic = [];
 
+function retrieveLocalData(name) {
+    const storedData = sessionStorage.getItem(name);
+    if (storedData !== null) {
+        const data = JSON.parse(storedData)
+        name === "dataByBook" ? dataByBook = data : dataByTopic = data;
+        return true;
+    }
+    return false;
+}
+
 async function fetchAndSetDataByBook() {
+    if (retrieveLocalData('dataByBook')) { return; }
+
     const response = await fetch('api/book', {
         method: 'GET',
         content: 'application/json'
     })
     const data = await response.json();
     dataByBook = data;
+    sessionStorage.setItem('dataByBook', JSON.stringify(data));
+    return true;
 }
 
-async function fetchAndSetQuotes() {
-    const response = await fetch('api/quote', {
+async function fetchAndSetDataByTopic() {
+    if (retrieveLocalData('dataByTopic')) { return; }
+
+    const response = await fetch('api/topic', {
         method: 'GET',
         content: 'application/json'
     })
     const data = await response.json();
-    quotes = data;
+    dataByTopic = data;
+    sessionStorage.setItem('dataByTopic', JSON.stringify(data));
 }
 
 function renderBookData() {
@@ -85,6 +102,8 @@ async function renderByCategory() {
     if (sortByBook) {
         await fetchAndSetDataByBook();
         renderBookData();
+    } else {
+        await fetchAndSetDataByTopic();
     }
 }
 
