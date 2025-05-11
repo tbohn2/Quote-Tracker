@@ -11,15 +11,15 @@
 </head>
 
 <body>
-    <header class="d-flex flex-column align-items-center">
-        <div class="col-12 d-flex align-items-center justify-content-evenly">
+    <header class="mb-4 d-flex flex-column align-items-center">
+        <div class="my-2 col-12 d-flex align-items-center justify-content-evenly">
             <img class="header-img" src="./book.png" alt="">
             <h1><a asp-controller="Home" asp-action="Index">Verses to Remember</a></h1>
             <img class="header-img" src="./book.png" alt="">
         </div>
-        <nav>
-            <a asp-controller="BookPage" asp-action="Index">Books</a>
-            @* <a asp-controller="TopicPage" asp-action="Index">Topics</a> *@
+        <nav class="d-flex col-6 justify-content-evenly">
+            <a asp-controller="BookPage" asp-action="Index" class="button">View Books</a>
+            @* <a asp-controller="TopicPage" asp-action="Index" class="button">View Topics</a> *@
         </nav>
     </header>
 

@@ -30,6 +30,31 @@ body {
   box-shadow: 0px 0px 10px var(--light);
 }
 
+header h1 a {
+  font-size: 3rem;
+  text-decoration: none;
+  color: var(--light);
+}
+
+nav a {
+  text-decoration: none;
+  color: var(--light);
+}
+
+nav a {
+  font-size: 1.5rem;
+  text-decoration: none;
+  color: var(--light);
+  transition: all 0.5s;
+  border: 1px solid var(--light);
+}
+
+nav a:hover {
+  color: var(--light);
+  box-shadow: 0px 0px 10px var(--light);
+  padding: 5px 20px;
+}
+
 .header-img {
   height: 100px;
 }
@@ -78,4 +103,14 @@ body {
 
 #book-list li a:hover {
   opacity: 0.5;
+}
+
+/* Book details */
+#book-details {
+  border: 1px solid var(--light);
+  border-radius: 7px;
+}
+
+#book-details {
+  border-bottom: 1px solid var(--light);
 }
