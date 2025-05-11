@@ -1,14 +1,43 @@
+@using System.Linq
+@model Quote_Tracker.Models.Book
+
 @{
     ViewData["Title"] = "Books";
 }
 
-<h1>@Model.Title</h1>
-<p><strong>Author:</strong> @Model.Author</p>
-
-<div>
-
+<div class="col-12 d-flex flex-column align-items-center">
+    <div id="book-details" class="col-6 d-flex flex-column align-items-center">
+        <h1>@Model.Title</h1>
+        @if (!string.IsNullOrWhiteSpace(Model.Author))
+        {
+            <p><strong>Author:</strong> @Model.Author</p>
+        }
+        @if (Model.Quotes != null && Model.Quotes.Any())
+        {
+            @foreach (var quote in Model.Quotes)
+            {
+                <div id=@quote.Id class="col-12 d-flex justify-content-between align-items-center px-2 py-1 quote-row">
+                    <div class="d-flex flex-column align-items-start col-3">
+                        <h3>
+                            @(quote.Chapter > 0 ? quote.Chapter : "")@((quote.Verse != null) ? ":" + quote.Verse.ToString(): "")
+                        </h3>
+                        <p> @(quote.Page > 0 ? @quote.Page : "") </p>
+                    </div>
+                    <p class="col-6 text-start quote-text mb-0">
+                        "@quote.Text" @(quote.Person != null ? "by " + @quote.Person : "")
+                    </p>
+                    <ul class="col-3 d-flex flex-wrap justify-content-center align-items-center mb-0">
+                        @foreach (var qt in quote.QuoteTopics)
+                        {
+                            <li class="text-center p-2 m-1">@qt.Topic.Name</li>
+                        }
+                    </ul>
+                </div>
+            }
+        }
+    </div>
 </div>
 
 @section Scripts {
-    <script src="~/js/bookDetails.js"></script>
+    @* <script src="~/js/bookDetails.js"></script> *@
 }
