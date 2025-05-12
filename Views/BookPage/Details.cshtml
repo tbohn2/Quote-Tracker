@@ -6,8 +6,11 @@
 }
 
 <div class="col-12 d-flex flex-column align-items-center">
-    <div id="book-details" class="col-6 d-flex flex-column align-items-center">
-        <h1>@Model.Title</h1>
+    <div class="col-6 d-flex justify-content-evenly">
+        <button id="toggle-title-edit" class="button primary my-2 fs-5">Edit Book</button>
+    </div>
+    <div id="book-details" data-id=@Model.Id class="col-6 d-flex flex-column align-items-center">
+        <h1 id="book-header">@Model.Title</h1>
         @if (!string.IsNullOrWhiteSpace(Model.Author))
         {
             <p><strong>Author:</strong> @Model.Author</p>
@@ -17,8 +20,8 @@
             @foreach (var quote in Model.Quotes)
             {
                 <div id=@quote.Id class="col-12 d-flex justify-content-between align-items-center px-2 py-1 quote-row">
-                    <div class="d-flex flex-column align-items-start col-3">
-                        <h3>
+                    <div class="d-flex flex-wrap align-items-center justify-content-start col-3">
+                        <h3 class="col-12">
                             @(quote.Chapter > 0 ? quote.Chapter : "")@((quote.Verse != null) ? ":" + quote.Verse.ToString(): "")
                         </h3>
                         <p> @(quote.Page > 0 ? @quote.Page : "") </p>
@@ -39,5 +42,5 @@
 </div>
 
 @section Scripts {
-    @* <script src="~/js/bookDetails.js"></script> *@
+    <script src="~/js/bookDetails.js"></script>
 }
