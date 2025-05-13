@@ -1,6 +1,6 @@
+const bookId = $('#book-details').data("id");
 let title = $('#book-header').text();
 let author = $('#author').text() || '';
-const bookId = $('#book-details').data("id");
 let editing = false;
 let newTitle = $('#book-header').text();
 let newAuthor = $('#author').text() || '';
@@ -11,8 +11,6 @@ async function saveTitle() {
         Title: newTitle,
         Author: newAuthor
     }
-
-    console.log(bookToUpdate);
 
     try {
         const response = await fetch('/api/book/', {
@@ -38,16 +36,35 @@ async function saveTitle() {
     }
 }
 
+async function deleteBook() {
+    try {
+        const response = await fetch(`/api/book/${bookId}`, {
+            method: 'DELETE',
+        });
 
+        if (!response.ok) {
+            console.error('Delete failed');
+        } else {
+            console.log('Delete successful');
+            $("#book-buttons").remove();
+            $("#book-details").remove();
+        }
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
 
 function toggleEdit() {
     editing = !editing;
 
     if (editing) {
         $("#toggle-title-edit").html("Cancel Edit").removeClass("primary").addClass("secondary");
-        const saveButton = `<button id="save-title" class="button success my-2 fs-5">Save New Title</button>`
+        const saveButton = `<button id="save-title" class="button success my-2 fs-5 col-3">Save</button>`
+        const deleteButton = `<button id="delete-book" class="button danger my-2 fs-5 col-3">Delete Book</button>`
         $("#toggle-title-edit").before(saveButton);
+        $("#toggle-title-edit").after(deleteButton);
         $("#save-title").on('click', saveTitle)
+        $("#delete-book").on('click', deleteBook)
 
         const titleInput = `<input id="title-input" class="toggle-hidden" type="text" value="${newTitle}" />`
         const authorInput = `<input id="author-input" class="toggle-hidden" type="text" placeholder="Author name if present" value="${newAuthor}" />`
@@ -62,6 +79,7 @@ function toggleEdit() {
     } else {
         $("#toggle-title-edit").html("Edit Book").removeClass("secondary").addClass("primary");
         $("#save-title").remove();
+        $("#delete-book").remove();
         $('#title-input').remove();
         $('#author-input').remove();
 

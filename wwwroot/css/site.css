@@ -5,7 +5,8 @@
   --light: #e6e797;
   --dark: rgb(3, 8, 31);
   --success: rgb(161, 209, 161);
-  --secondary: rgb(167, 167, 167);
+  --danger: rgb(201, 64, 64);
+  --secondary: rgb(204, 204, 204);
 }
 
 body {
@@ -39,27 +40,37 @@ input[type="text"] {
 
 .button.success {
   color: var(--dark);
-  background-color: var(--light);
-  border: 1px solid var(--dark);
+  background-color: var(--success);
+  border: 1px solid var(--success);
 }
 
 .button.success:hover {
-  color: var(--dark);
-  background-color: var(--success);
-  border: 1px solid var(--success);
+  color: var(--success);
+  background-color: var(--dark);
   box-shadow: 0px 0px 10px var(--success);
+}
+
+.button.danger {
+  color: var(--dark);
+  background-color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+.button.danger:hover {
+  color: var(--danger);
+  background-color: var(--dark);
+  box-shadow: 0px 0px 10px var(--danger);
 }
 
 .button.secondary {
   color: var(--dark);
-  background-color: var(--light);
-  border: 1px solid var(--dark);
+  background-color: var(--secondary);
+  border: 1px solid var(--secondary);
 }
 
 .button.secondary:hover {
-  color: var(--dark);
-  background-color: var(--secondary);
-  border: 1px solid var(--secondary);
+  color: var(--secondary);
+  background-color: var(--dark);
   box-shadow: 0px 0px 10px var(--secondary);
 }
 

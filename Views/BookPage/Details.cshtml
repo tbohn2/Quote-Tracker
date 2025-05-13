@@ -6,10 +6,10 @@
 }
 
 <div class="col-12 d-flex flex-column align-items-center">
-    <div class="col-6 d-flex justify-content-evenly">
-        <button id="toggle-title-edit" class="button primary my-2 fs-5">Edit Book</button>
+    <div id="book-buttons" class="col-6 d-flex justify-content-evenly">
+        <button id="toggle-title-edit" class="button primary my-2 fs-5 col-3">Edit Book</button>
     </div>
-    <div id="book-details" data-id=@Model.Id class="col-6 d-flex flex-column align-items-center">
+    <div id="book-details" data-id=@Model.Id class="col-6 my-2 d-flex flex-column align-items-center">
         <h1 id="book-header">@Model.Title</h1>
         @if (!string.IsNullOrWhiteSpace(Model.Author))
         {
