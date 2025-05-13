@@ -1,5 +1,44 @@
-let editing = false;
+let title = $('#book-header').text();
+let author = $('#author').text() || '';
 const bookId = $('#book-details').data("id");
+let editing = false;
+let newTitle = $('#book-header').text();
+let newAuthor = $('#author').text() || '';
+
+async function saveTitle() {
+    const bookToUpdate = {
+        Id: bookId,
+        Title: newTitle,
+        Author: newAuthor
+    }
+
+    console.log(bookToUpdate);
+
+    try {
+        const response = await fetch('/api/book/', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(bookToUpdate)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            console.error('Update failed:', result);
+        } else {
+            console.log('Update successful:', result);
+            title = newTitle;
+            author = newAuthor;
+            toggleEdit();
+        }
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+
 
 function toggleEdit() {
     editing = !editing;
@@ -10,16 +49,35 @@ function toggleEdit() {
         $("#toggle-title-edit").before(saveButton);
         $("#save-title").on('click', saveTitle)
 
-        const title = $('#book-header').text();
-        const input = `<input id="title-input" class="toggle-hidden" type="text" value="${title}" />`
-        $('#book-header').after(input);
+        const titleInput = `<input id="title-input" class="toggle-hidden" type="text" value="${newTitle}" />`
+        const authorInput = `<input id="author-input" class="toggle-hidden" type="text" placeholder="Author name if present" value="${newAuthor}" />`
+        $('#book-header').after(authorInput);
+        $('#book-header').after(titleInput);
+
+        $('#title-input').on('change', (e) => { newTitle = e.target.value })
+        $('#author-input').on('change', (e) => { newAuthor = e.target.value })
+
         $('#book-header').hide();
+        $('#author').hide();
     } else {
         $("#toggle-title-edit").html("Edit Book").removeClass("secondary").addClass("primary");
         $("#save-title").remove();
         $('#title-input').remove();
-        $('#book-header').show();
-    }
-}
+        $('#author-input').remove();
+
+        $('#book-header').show().text(title);
+        if (author) {
+            $('#author').show().text(author);
+            if (!$('#author').html()) {
+                $("#book-header").after(`<h2 id="author">${author}</h2>`);
+            }
+        } else {
+            $("#author").remove();
+        }
+
+        newTitle = $('#book-header').text();
+        newAuthor = $('#author').text() || '';
+    };
+};
 
 $("#toggle-title-edit").on('click', toggleEdit);

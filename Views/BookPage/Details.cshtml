@@ -13,7 +13,7 @@
         <h1 id="book-header">@Model.Title</h1>
         @if (!string.IsNullOrWhiteSpace(Model.Author))
         {
-            <p><strong>Author:</strong> @Model.Author</p>
+            <h2 id="author"> @Model.Author </h2>
         }
         @if (Model.Quotes != null && Model.Quotes.Any())
         {
