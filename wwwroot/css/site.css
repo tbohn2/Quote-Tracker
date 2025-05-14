@@ -19,6 +19,20 @@ input[type="text"] {
   background-color: var(--light);
 }
 
+select {
+  color: var(--light);
+  background-color: var(--dark);
+  border: 1px solid var(--light);
+  padding: 5px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.modal-content {
+  border: 1px solid var(--light);
+  background-color: var(--dark);
+}
+
 .button {
   padding: 5px 10px;
   border-radius: 15px;
