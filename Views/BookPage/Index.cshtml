@@ -26,36 +26,36 @@
                     <h1 class="modal-title fs-5" id="addBookLabel">Add Book</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body pb-0">
                     <form id="create-book-form">
                         <div class="mb-3">
-                            <label for="title" class="form-label">Title</label>
-                            <input id="title" name="title" class="form-control" required />
+                            <label for="Title" class="form-label">Title</label>
+                            <input id="title" name="Title" class="form-control" required />
                         </div>
 
                         <div class="mb-3">
-                            <label for="author" class="form-label">Author</label>
-                            <input id="author" name="author" class="form-control" />
+                            <label for="Author" class="form-label">Author</label>
+                            <input id="author" name="Author" class="form-control" />
                         </div>
 
                         <div class="mb-3">
-                            <label for="priorityIndex" class="form-label">Select Placement</label><br>
-                            <select name="priorityIndex" id="priorityIndex">
+                            <label for="PriorityIndex" class="form-label">Select Placement</label><br>
+                            <select name="PriorityIndex" id="priorityIndex">
                                 <option value="0">Beginning</option>
                                 @foreach (var book in Model)
                                 {
-                                    <option value="@book.PriorityIndex">
+                                    <option value="@(book.PriorityIndex + 1)">
                                         After @book.Title
                                     </option>
                                 }
                             </select>
                         </div>
+                        <div class="modal-footer">
+                            <button id="add-book" type="submit" class="button success">Save Book</button>
+                            <button id="close-book-modal" type="button" class="button secondary"
+                                data-bs-dismiss="modal">Close</button>
+                        </div>
                     </form>
-                </div>
-                <div class="modal-footer">
-                    <button id="add-book" type="button" class="button success">Save Book</button>
-                    <button id="close-book-modal" type="button" class="button secondary"
-                        data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

@@ -1,6 +1,11 @@
 
 let draggedItem = null;
 let start = 0;
+let newBook = {
+    Title: "",
+    Author: "",
+    PriorityIndex: 0
+}
 
 async function saveChangedReorder() {
     const bookOrder = [];
@@ -28,9 +33,42 @@ async function saveChangedReorder() {
     $('#save-reorder').remove();
 }
 
+async function saveNewBook(e) {
+    e.preventDefault()
+
+    try {
+        const response = await fetch('api/book/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newBook)
+        })
+
+        const data = await response.json();
+        if (!response.ok) {
+            console.log(data);
+        } else {
+            console.log(data);
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+function updateForm(e) {
+    const name = e.target.name;
+    const newValue = name === "PriorityIndex" ? parseInt(e.target.value) : e.target.value;
+    newBook[name] = newValue;
+};
+
+$('#create-book-form').on('change', updateForm);
+$('#create-book-form').on('submit', saveNewBook);
+
 $('#book-list').on('dragstart', '.book-item', function (e) {
     draggedItem = $(this);
     draggedItem.css('opacity', 0.5);
+    $('#save-reorder').remove();
 });
 
 $('#book-list').on('dragend', '.book-item', function (e) {
