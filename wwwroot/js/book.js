@@ -49,6 +49,8 @@ async function saveNewBook(e) {
         if (!response.ok) {
             console.log(data);
         } else {
+            $('#addBook').modal('hide');
+            resetFormState();
             console.log(data);
         }
     } catch (error) {
@@ -62,8 +64,21 @@ function updateForm(e) {
     newBook[name] = newValue;
 };
 
+function resetFormState() {
+    newBook = {
+        Title: "",
+        Author: "",
+        PriorityIndex: 0
+    };
+
+    $('input[name="Title"]').val("");
+    $('input[name="Title"]').val("");
+    $('select[name="PriorityIndex"]').val("0");
+}
+
 $('#create-book-form').on('change', updateForm);
 $('#create-book-form').on('submit', saveNewBook);
+$('#close-book-modal').on('click', resetFormState);
 
 $('#book-list').on('dragstart', '.book-item', function (e) {
     draggedItem = $(this);
