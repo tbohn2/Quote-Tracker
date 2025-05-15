@@ -58,9 +58,23 @@ namespace Quote_Tracker.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateBook([FromBody] CreateBook request)
         {
-            if (string.IsNullOrEmpty(request.Title))
+            if (!ModelState.IsValid)
             {
                 return BadRequest("Title cannot be empty.");
+            }
+
+            var books = await _context.Books
+                .Where(b => b.PriorityIndex >= request.PriorityIndex)
+                .OrderBy(b => b.PriorityIndex)
+                .Select(b => new BookToReorder
+                {
+                    Id = b.Id,
+                    PriorityIndex = b.PriorityIndex + 1,
+                }).ToListAsync();
+
+            if (books.Count > 0)
+            {
+                await ReorderBooks(books);
             }
 
             var newBook = new Book
