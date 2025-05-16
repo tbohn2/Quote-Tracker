@@ -46,8 +46,7 @@ async function deleteBook() {
             console.error('Delete failed');
         } else {
             console.log('Delete successful');
-            $("#book-buttons").remove();
-            $("#book-details").remove();
+            location.assign("/BookPage")
         }
     } catch (error) {
         console.error('Fetch error:', error);
@@ -63,8 +62,8 @@ function toggleEdit() {
         const deleteButton = `<button id="delete-book" class="button danger my-2 fs-5 col-3">Delete Book</button>`
         $("#toggle-title-edit").before(saveButton);
         $("#toggle-title-edit").after(deleteButton);
-        $("#save-title").on('click', saveTitle)
-        $("#delete-book").on('click', deleteBook)
+        $("#save-title").on('click', saveTitle);
+        $("#delete-book").on('click', deleteBook);
 
         const titleInput = `<input id="title-input" class="toggle-hidden" type="text" value="${newTitle}" />`
         const authorInput = `<input id="author-input" class="toggle-hidden" type="text" placeholder="Author name if present" value="${newAuthor}" />`
