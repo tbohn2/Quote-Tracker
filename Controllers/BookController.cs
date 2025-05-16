@@ -25,7 +25,6 @@ namespace Quote_Tracker.Controllers
             }
 
             var json = JsonSerializer.Serialize(BooksToReorder);
-            Console.WriteLine(json);
 
             var existingBooks = await _context.Books.ToListAsync();
             var bookMap = BooksToReorder.ToDictionary(b => b.Id);
@@ -179,6 +178,15 @@ namespace Quote_Tracker.Controllers
             if (bookToDelete == null)
             {
                 return NotFound($"No book found with ID {id}");
+            }
+
+            var booksToUpdate = await _context.Books
+                .Where(b => b.PriorityIndex > bookToDelete.PriorityIndex)
+                .ToListAsync();
+
+            foreach (var book in booksToUpdate)
+            {
+                book.PriorityIndex--;
             }
 
             _context.Books.Remove(bookToDelete);
