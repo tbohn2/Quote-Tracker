@@ -3,6 +3,7 @@ using Quote_Tracker.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace Quote_Tracker.Controllers
 {
@@ -15,6 +16,33 @@ namespace Quote_Tracker.Controllers
         public BookController(Quote_Tracker_Context context)
         {
             _context = context;
+        }
+        public async Task<List<Book>> ReorderBooks(List<BookToReorder> BooksToReorder)
+        {
+            if (BooksToReorder == null || BooksToReorder.Count == 0)
+            {
+                return null;
+            }
+
+            var json = JsonSerializer.Serialize(BooksToReorder);
+            Console.WriteLine(json);
+
+            var existingBooks = await _context.Books.ToListAsync();
+            var bookMap = BooksToReorder.ToDictionary(b => b.Id);
+
+            foreach (var book in existingBooks)
+            {
+                if (bookMap.TryGetValue(book.Id, out var updated))
+                {
+                    book.PriorityIndex = updated.PriorityIndex;
+                }
+            }
+
+            var sortedBooks = existingBooks.OrderBy(b => b.PriorityIndex).ToList();
+
+            await _context.SaveChangesAsync();
+
+            return sortedBooks;
         }
 
         [HttpGet]
@@ -63,7 +91,7 @@ namespace Quote_Tracker.Controllers
                 return BadRequest("Title cannot be empty.");
             }
 
-            var books = await _context.Books
+            var booksToReorder = await _context.Books
                 .Where(b => b.PriorityIndex >= request.PriorityIndex)
                 .OrderBy(b => b.PriorityIndex)
                 .Select(b => new BookToReorder
@@ -71,11 +99,6 @@ namespace Quote_Tracker.Controllers
                     Id = b.Id,
                     PriorityIndex = b.PriorityIndex + 1,
                 }).ToListAsync();
-
-            if (books.Count > 0)
-            {
-                await ReorderBooks(books);
-            }
 
             var newBook = new Book
             {
@@ -87,34 +110,27 @@ namespace Quote_Tracker.Controllers
             _context.Books.Add(newBook);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetAllBooks), new { id = newBook.Id }, newBook);
+            booksToReorder.Add(new BookToReorder
+            {
+                Id = newBook.Id,
+                PriorityIndex = newBook.PriorityIndex
+            });
+
+            var allBooks = await ReorderBooks(booksToReorder);
+
+            return CreatedAtAction(nameof(GetAllBooks), new { id = newBook.Id }, allBooks);
         }
 
         [HttpPost("reorder")]
-        public async Task<IActionResult> ReorderBooks([FromBody] List<BookToReorder> Books)
+        public async Task<IActionResult> ReorderBooksRoute([FromBody] List<BookToReorder> BooksToReorder)
         {
-            if (Books == null || Books.Count == 0)
+            var ReorderedBooks = await ReorderBooks(BooksToReorder);
+            if (ReorderedBooks == null)
             {
                 return BadRequest("No books provided.");
             }
 
-            var bookIds = Books.Select(b => b.Id).ToList();
-            var existingBooks = await _context.Books
-                .Where(b => bookIds.Contains(b.Id))
-                .ToListAsync();
-
-            foreach (var book in existingBooks)
-            {
-                var updatedBook = Books.FirstOrDefault(b => b.Id == book.Id);
-                if (updatedBook != null)
-                {
-                    book.PriorityIndex = updatedBook.PriorityIndex;
-                }
-            }
-
-            await _context.SaveChangesAsync();
-
-            return Ok("Book order updated.");
+            return Ok(ReorderedBooks);
         }
 
         [HttpPut]
