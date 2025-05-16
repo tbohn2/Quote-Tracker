@@ -11,7 +11,7 @@
     <ul id="book-list" class="col-6 p-0">
         @foreach (var book in Model)
         {
-            <li class="book-item text-center p-2" data-id="@book.Id" draggable="true">
+            <li class="book-item text-center p-2" data-id="@book.Id" data-pi="@book.PriorityIndex" draggable="true">
                 <a asp-controller="BookPage" asp-action="Details" asp-route-id="@book.Id">
                     @book.Title
                 </a>
