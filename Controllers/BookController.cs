@@ -17,7 +17,7 @@ namespace Quote_Tracker.Controllers
         {
             _context = context;
         }
-        public async Task<List<Book>> ReorderBooks(List<BookToReorder> BooksToReorder)
+        public async Task<List<Book>?> ReorderBooks(List<BookToReorder> BooksToReorder)
         {
             if (BooksToReorder == null || BooksToReorder.Count == 0)
             {
