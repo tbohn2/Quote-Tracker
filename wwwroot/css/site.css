@@ -142,24 +142,27 @@ nav a:hover {
 }
 
 
-/* Book Page CSS */
-#book-list {
+/* Book Page and Topic Page CSS */
+.list {
   list-style: none;
 }
 
-#book-list li {
+.list li {
   border: 1px solid var(--light);
+}
+
+#book-list li {
   cursor: grab;
 }
 
-#book-list li a {
+.list li a {
   text-decoration: none;
   color: var(--light);
   font-size: 1.5rem;
   transition: all 0.25s;
 }
 
-#book-list li a:hover {
+.list li a:hover {
   opacity: 0.5;
 }
 

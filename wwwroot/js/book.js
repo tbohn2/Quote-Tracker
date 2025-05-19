@@ -47,8 +47,6 @@ async function saveChangedReorder() {
 async function saveNewBook(e) {
     e.preventDefault()
 
-    console.log(newBook);
-
     try {
         const response = await fetch('api/book/', {
             method: 'POST',
@@ -92,7 +90,7 @@ function resetFormState() {
 
 function renderBookList(books) {
     const booksDisplay = `
-    <ul id="book-list" class="col-6 p-0">
+    <ul id="book-list" class="col-6 p-0 list">
         ${books.map(book =>
         `<li class="book-item text-center p-2" data-id="${book.id}" data-pi="${book.priorityIndex}" draggable="true">
             <a href="/BookPage/Details/${book.id}">

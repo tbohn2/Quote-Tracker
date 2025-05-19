@@ -8,7 +8,7 @@
     <button type="button" class="button primary my-3" data-bs-toggle="modal" data-bs-target="#addBook">Add
         Book</button>
 
-    <ul id="book-list" class="col-6 p-0">
+    <ul id="book-list" class="col-6 p-0 list">
         @foreach (var book in Model)
         {
             <li class="book-item text-center p-2" data-id="@book.Id" data-pi="@book.PriorityIndex" draggable="true">
