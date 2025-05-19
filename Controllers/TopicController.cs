@@ -23,8 +23,8 @@ namespace Quote_Tracker.Controllers
             var Topics = await _context.Topics
                 .OrderBy(t => t.Name)
                 .Include(t => t.QuoteTopics)
-                .ThenInclude(qt => qt.Quote)
-                .ThenInclude(q => q.Book)
+                    .ThenInclude(qt => qt.Quote)
+                        .ThenInclude(q => q.Book)
                 .Select(t => new GetTopic
                 {
                     Id = t.Id,
@@ -41,7 +41,11 @@ namespace Quote_Tracker.Controllers
                         BookTitle = qt.Quote.Book.Title,
                         BookAuthor = qt.Quote.Book.Author,
                         BookPriorityIndex = qt.Quote.Book.PriorityIndex
-                    }).OrderBy(q => q.BookPriorityIndex).ToList()
+                    })
+                    .OrderBy(q => q.BookPriorityIndex)
+                    .ThenBy(q => q.Chapter ?? int.MaxValue)
+                    .ThenBy(q => q.Verse ?? int.MaxValue)
+                    .ToList()
                 }).ToListAsync();
 
             if (Topics.Count == 0)
@@ -68,7 +72,16 @@ namespace Quote_Tracker.Controllers
             _context.Topics.Add(newTopic);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetAllTopics), new { id = newTopic.Id }, newTopic);
+            var topics = await _context.Topics
+                .OrderBy(t => t.Name)
+                .ToListAsync();
+
+            if (topics.Count == 0)
+            {
+                return Ok("New Topic Saved; Failed to retrieve all topics");
+            }
+
+            return CreatedAtAction(nameof(GetAllTopics), new { id = newTopic.Id }, topics);
         }
 
         [HttpPut()]

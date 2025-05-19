@@ -3,10 +3,10 @@
 }
 
 <div id="topics" class="col-12 d-flex flex-column align-items-center">
-    <button type="button" class="button primary my-3" data-bs-toggle="modal" data-bs-target="#addtopic">Add
+    <button type="button" class="button primary my-3" data-bs-toggle="modal" data-bs-target="#addTopic">Add
         Topic</button>
 
-    <ul id="topic-list" class="col-6 p-0">
+    <ul id="topic-list" class="col-6 p-0 list">
         @foreach (var topic in Model)
         {
             <li class="topic-item text-center p-2" data-id="@topic.Id">
@@ -17,11 +17,11 @@
         }
     </ul>
 
-    <div class="modal fade" id="addtopic" tabindex="-1" aria-labelledby="addtopicLabel" aria-hidden="true">
+    <div class="modal fade" id="addTopic" tabindex="-1" aria-labelledby="addTopicLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="addtopicLabel">Add Topic</h1>
+                    <h1 class="modal-title fs-5" id="addTopicLabel">Add Topic</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body pb-0">
