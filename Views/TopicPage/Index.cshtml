@@ -1,0 +1,47 @@
+@{
+    ViewData["Title"] = "Topics";
+}
+
+<div id="topics" class="col-12 d-flex flex-column align-items-center">
+    <button type="button" class="button primary my-3" data-bs-toggle="modal" data-bs-target="#addtopic">Add
+        Topic</button>
+
+    <ul id="topic-list" class="col-6 p-0">
+        @foreach (var topic in Model)
+        {
+            <li class="topic-item text-center p-2" data-id="@topic.Id">
+                <a asp-controller="TopicPage" asp-action="Details" asp-route-id="@topic.Id">
+                    @topic.Name
+                </a>
+            </li>
+        }
+    </ul>
+
+    <div class="modal fade" id="addtopic" tabindex="-1" aria-labelledby="addtopicLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="addtopicLabel">Add Topic</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pb-0">
+                    <form id="create-topic-form">
+                        <div class="mb-3">
+                            <label for="topicName" class="form-label">Topic Name</label>
+                            <input id="topicName" name="topicName" class="form-control" required />
+                        </div>
+                        <div class="modal-footer">
+                            <button id="add-topic" type="submit" class="button success">Save topic</button>
+                            <button id="close-topic-modal" type="button" class="button secondary"
+                                data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/topic.js"></script>
+}
