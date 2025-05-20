@@ -1,0 +1,40 @@
+@using System.Linq
+@model Quote_Tracker.Models.GetTopic
+
+@{
+    ViewData["Title"] = "Topic";
+}
+
+<div class="col-12 d-flex flex-column align-items-center">
+    <div id="topic-buttons" class="col-6 d-flex justify-content-evenly">
+        <button id="save" class="button success my-2 fs-5 col-3" style="display: none;">Save</button>
+        <button id="toggle-edit" class="button primary my-2 fs-5 col-3">Edit Book</button>
+        <button id="delete" class="button danger my-2 fs-5 col-3" style="display: none;">Delete Book</button>
+    </div>
+    <div id="topic-details" data-id=@Model.Id class="col-6 my-2 d-flex flex-column align-items-center">
+        <h1 id="topic-header">@Model.Name</h1>
+
+        @if (Model.Quotes != null && Model.Quotes.Any())
+        {
+            @foreach (var quote in Model.Quotes)
+            {
+                <div id=@quote.Id class="col-12 d-flex justify-content-between align-items-center px-2 py-1 quote-row">
+                    <div class="d-flex flex-wrap align-items-center justify-content-start col-3">
+                        <h3 class="col-12">
+                            @(quote.Chapter > 0 ? quote.Chapter : "")@((quote.Verse != null) ? ":" + quote.Verse.ToString(): "")
+                        </h3>
+                        <p> @(quote.Page > 0 ? @quote.Page : "") </p>
+                    </div>
+                    <p class="col-6 text-start quote-text mb-0">
+                        "@quote.Text" @(quote.Person != null ? "by " + @quote.Person : "")
+                    </p>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script type="module" src="~/js/topicDetails.js"></script>
+    <script type="module" src="~/js/bookTopicOperations.js"></script>
+}
