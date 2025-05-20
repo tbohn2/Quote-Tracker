@@ -1,3 +1,5 @@
+import { saveNew, deleteObject, toggleEdit } from "./bookTopicOperations.js";
+
 const bookId = $('#book-details').data("id");
 let title = $('#book-header').text();
 let author = $('#author').text() || '';
@@ -5,96 +7,60 @@ let editing = false;
 let newTitle = $('#book-header').text();
 let newAuthor = $('#author').text() || '';
 
-async function saveTitle() {
+function resetState() {
+    title = $('#book-header').text();
+    author = $('#author').text() || '';
+    editing = false;
+    newTitle = $('#book-header').text();
+    newAuthor = $('#author').text() || '';
+}
+
+function saveTitle() {
     const bookToUpdate = {
         Id: bookId,
         Title: newTitle,
         Author: newAuthor
-    }
+    };
 
-    try {
-        const response = await fetch('/api/book/', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(bookToUpdate)
-        });
+    saveNew('/api/book/', bookToUpdate, () => {
+        $('#book-header').text(newTitle);
+        $('#author').text(newAuthor);
 
-        const result = await response.json();
+        toggleBookEdit();
+        resetState();
+    });
+};
 
-        if (!response.ok) {
-            console.error('Update failed:', result);
-        } else {
-            console.log('Update successful:', result);
-            title = newTitle;
-            author = newAuthor;
-            toggleEdit();
-        }
-    } catch (error) {
-        console.error('Fetch error:', error);
-    }
-}
-
-async function deleteBook() {
-    try {
-        const response = await fetch(`/api/book/${bookId}`, {
-            method: 'DELETE',
-        });
-
-        if (!response.ok) {
-            console.error('Delete failed');
-        } else {
-            console.log('Delete successful');
-            location.assign("/BookPage")
-        }
-    } catch (error) {
-        console.error('Fetch error:', error);
-    }
-}
-
-function toggleEdit() {
+function toggleBookEdit() {
     editing = !editing;
+    toggleEdit(editing);
 
     if (editing) {
-        $("#toggle-title-edit").html("Cancel Edit").removeClass("primary").addClass("secondary");
-        const saveButton = `<button id="save-title" class="button success my-2 fs-5 col-3">Save</button>`
-        const deleteButton = `<button id="delete-book" class="button danger my-2 fs-5 col-3">Delete Book</button>`
-        $("#toggle-title-edit").before(saveButton);
-        $("#toggle-title-edit").after(deleteButton);
-        $("#save-title").on('click', saveTitle);
-        $("#delete-book").on('click', deleteBook);
-
-        const titleInput = `<input id="title-input" class="toggle-hidden" type="text" value="${newTitle}" />`
-        const authorInput = `<input id="author-input" class="toggle-hidden" type="text" placeholder="Author name if present" value="${newAuthor}" />`
-        $('#book-header').after(authorInput);
-        $('#book-header').after(titleInput);
-
-        $('#title-input').on('change', (e) => { newTitle = e.target.value })
-        $('#author-input').on('change', (e) => { newAuthor = e.target.value })
-
         $('#book-header').hide();
         $('#author').hide();
-    } else {
-        $("#toggle-title-edit").html("Edit Book").removeClass("secondary").addClass("primary");
-        $("#save-title").remove();
-        $("#delete-book").remove();
-        $('#title-input').remove();
-        $('#author-input').remove();
 
-        $('#book-header').show().text(title);
+        $('#title-input').fadeIn();
+        $('#author-input').fadeIn();
+    } else {
+        $('#title-input').hide();
+        $('#author-input').hide();
+
+        $('#book-header').fadeIn();
         if (author) {
-            $('#author').show().text(author);
+            $('#author').fadeIn().text(author);
             if (!$('#author').html()) {
                 $("#book-header").after(`<h2 id="author">${author}</h2>`);
             }
         } else {
             $("#author").remove();
-        }
+        };
 
-        newTitle = $('#book-header').text();
-        newAuthor = $('#author').text() || '';
+        resetState();
     };
 };
 
-$("#toggle-title-edit").on('click', toggleEdit);
+$('#title-input').on('change', (e) => { newTitle = e.target.value });
+$('#author-input').on('change', (e) => { newAuthor = e.target.value });
+$("#save").on('click', saveTitle);
+$("#delete").on('click', () => deleteObject(`/api/book/${bookId}`, "/BookPage"));
+$("#toggle-edit").on('click', toggleBookEdit);

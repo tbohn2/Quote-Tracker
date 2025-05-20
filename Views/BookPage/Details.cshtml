@@ -7,10 +7,15 @@
 
 <div class="col-12 d-flex flex-column align-items-center">
     <div id="book-buttons" class="col-6 d-flex justify-content-evenly">
-        <button id="toggle-title-edit" class="button primary my-2 fs-5 col-3">Edit Book</button>
+        <button id="save" class="button success my-2 fs-5 col-3" style="display: none;">Save</button>
+        <button id="toggle-edit" class="button primary my-2 fs-5 col-3">Edit Book</button>
+        <button id="delete" class="button danger my-2 fs-5 col-3" style="display: none;">Delete Book</button>
     </div>
     <div id="book-details" data-id=@Model.Id class="col-6 my-2 d-flex flex-column align-items-center">
         <h1 id="book-header">@Model.Title</h1>
+        <input id="title-input" class="toggle-hidden" style="display: none;" type="text" value="@Model.Title" />
+        <input id="author-input" class="toggle-hidden" style="display: none;" type="text"
+            placeholder="Author name if present" />
         @if (!string.IsNullOrWhiteSpace(Model.Author))
         {
             <h2 id="author"> @Model.Author </h2>
@@ -42,5 +47,6 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/bookDetails.js"></script>
+    <script type="module" src="~/js/bookDetails.js"></script>
+    <script type="module" src="~/js/bookTopicOperations.js"></script>
 }
