@@ -11,15 +11,17 @@
 </head>
 
 <body>
-    <header class="mb-4 d-flex flex-column align-items-center">
-        <div class="my-2 col-12 d-flex align-items-center justify-content-evenly">
+    <header class="mb-4 d-flex align-items-center justify-content-between px-4">
+        <div class="my-2 d-flex align-items-center justify-content-evenly">
             <img class="header-img" src="./book.png" alt="">
-            <h1><a asp-controller="Home" asp-action="Index">Verses to Remember</a></h1>
-            <img class="header-img" src="./book.png" alt="">
+            <h1>Quote Tracker</h1>
         </div>
-        <nav class="d-flex col-6 justify-content-evenly">
-            <a asp-controller="BookPage" asp-action="Index" class="button">View Books</a>
-            <a asp-controller="TopicPage" asp-action="Index" class="button">View Topics</a>
+        <nav class="d-flex justify-content-evenly">
+            <a asp-controller="Home" asp-action="Index" class="button primary text-decoration-none fs-4 mx-2">Verses</a>
+            <a asp-controller="BookPage" asp-action="Index"
+                class="button primary text-decoration-none fs-4 mx-2">Books</a>
+            <a asp-controller="TopicPage" asp-action="Index"
+                class="button primary text-decoration-none fs-4 mx-2">Topics</a>
         </nav>
     </header>
 
