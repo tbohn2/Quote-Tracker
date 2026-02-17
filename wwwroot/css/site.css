@@ -2,8 +2,9 @@
   font-size: 16px;
   position: relative;
   min-height: 100%;
-  --light: #e6e797;
+  --light: #d8e6e4;
   --dark: rgb(3, 8, 31);
+  --light-blue: rgb(79, 134, 218);
   --success: rgb(161, 209, 161);
   --danger: rgb(201, 64, 64);
   --secondary: rgb(204, 204, 204);
@@ -11,7 +12,11 @@
 
 body {
   color: var(--light);
-  background-color: var(--dark);
+  background-image: linear-gradient(135deg, var(--dark) 0%, var(--light-blue) 100%);
+}
+
+header {
+  border-bottom: 1px solid var(--light);
 }
 
 input[type="text"] {
@@ -33,9 +38,11 @@ select {
   background-color: var(--dark);
 }
 
+/* Buttons */
+
 .button {
-  padding: 5px 10px;
-  border-radius: 15px;
+  padding: 5px 20px;
+  border-radius: 20px;
   transition: all 0.5s;
 }
 
@@ -46,10 +53,23 @@ select {
 }
 
 .button.primary:hover {
+  padding: 5px 25px;
   color: var(--light);
-  background-color: var(--dark);
+  background-color: var(--light-blue);
   border: 1px solid var(--light);
   box-shadow: 0px 0px 10px var(--light);
+}
+
+.button.secondary {
+  color: var(--light);
+  background-color: var(--light-blue);
+  border: 1px solid var(--light-blue);
+}
+
+.button.secondary:hover {
+  color: var(--secondary);
+  background-color: var(--dark);
+  box-shadow: 0px 0px 10px var(--secondary);
 }
 
 .button.success {
@@ -76,41 +96,10 @@ select {
   box-shadow: 0px 0px 10px var(--danger);
 }
 
-.button.secondary {
-  color: var(--dark);
-  background-color: var(--secondary);
-  border: 1px solid var(--secondary);
-}
-
-.button.secondary:hover {
-  color: var(--secondary);
-  background-color: var(--dark);
-  box-shadow: 0px 0px 10px var(--secondary);
-}
-
 header h1 a {
   font-size: 3rem;
   text-decoration: none;
   color: var(--light);
-}
-
-nav a {
-  text-decoration: none;
-  color: var(--light);
-}
-
-nav a {
-  font-size: 1.5rem;
-  text-decoration: none;
-  color: var(--light);
-  transition: all 0.5s;
-  border: 1px solid var(--light);
-}
-
-nav a:hover {
-  color: var(--light);
-  box-shadow: 0px 0px 10px var(--light);
-  padding: 5px 20px;
 }
 
 .header-img {
