@@ -13,9 +13,9 @@ namespace Quote_Tracker.Models
 
         public void SetPassword(string plainPassword)
         {
-            Password = BCrypt.HashPassword(plainPassword);
+            Password = BCrypt.Net.BCrypt.HashPassword(plainPassword);
         }
 
-        public bool VerifyPassword(string plainPassword) => BCrypt.Verify(plainPassword, Password);
+        public bool VerifyPassword(string plainPassword) => BCrypt.Net.BCrypt.Verify(plainPassword, Password);
     }
 }
