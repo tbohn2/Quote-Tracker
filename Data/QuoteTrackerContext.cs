@@ -7,6 +7,7 @@ namespace Quote_Tracker.Data
     public class Quote_Tracker_Context : DbContext
     {
         public Quote_Tracker_Context(DbContextOptions<Quote_Tracker_Context> options) : base(options) { }
+        public DbSet<User> Users { get; set; }
         public DbSet<Quote> Quotes { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<Topic> Topics { get; set; }
@@ -19,6 +20,18 @@ namespace Quote_Tracker.Data
             modelBuilder.Entity<Quote>()
                 .Property(q => q.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            modelBuilder.Entity<Book>()
+                .HasOne(b => b.User)
+                .WithMany(u => u.Books)
+                .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Topic>()
+                .HasOne(t => t.User)
+                .WithMany(u => u.Topics)
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Quote>()
                 .HasOne(q => q.Book)

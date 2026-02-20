@@ -7,6 +7,8 @@ namespace Quote_Tracker.Models
         public required string Title { get; set; }
         public string? Author { get; set; }
         public required int PriorityIndex { get; set; }
+        public required int UserId { get; set; }
+        public User User { get; set; } = null!;
         public ICollection<Quote> Quotes { get; set; } = new List<Quote>();
     }
 }
