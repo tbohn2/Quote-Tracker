@@ -1,5 +1,6 @@
 using Quote_Tracker.Data;
 using Quote_Tracker.Models;
+using Quote_Tracker.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace Quote_Tracker.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [RequireAuth]
     public class TopicController : ControllerBase
     {
         private readonly Quote_Tracker_Context _context;
@@ -20,7 +22,9 @@ namespace Quote_Tracker.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllTopics()
         {
-            var Topics = await _context.Topics
+            var userId = CurrentUser.GetUserId(HttpContext)!.Value;
+            var topics = await _context.Topics
+                .Where(t => t.UserId == userId)
                 .OrderBy(t => t.Name)
                 .Include(t => t.QuoteTopics)
                     .ThenInclude(qt => qt.Quote)
@@ -48,58 +52,47 @@ namespace Quote_Tracker.Controllers
                     .ToList()
                 }).ToListAsync();
 
-            if (Topics.Count == 0)
-            {
-                return Ok("No Topics found");
-            }
-
-            return Ok(Topics);
+            return Ok(topics);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateTopic([FromBody] CreateTopic request)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest("Invalid format; check for missing information (Topic or book source).");
-            }
 
+            var userId = CurrentUser.GetUserId(HttpContext)!.Value;
             var newTopic = new Topic
             {
-                Name = request.Name
+                Name = request.Name,
+                UserId = userId
             };
 
             _context.Topics.Add(newTopic);
             await _context.SaveChangesAsync();
 
             var topics = await _context.Topics
+                .Where(t => t.UserId == userId)
                 .OrderBy(t => t.Name)
                 .ToListAsync();
-
-            if (topics.Count == 0)
-            {
-                return Ok("New Topic Saved; Failed to retrieve all topics");
-            }
 
             return CreatedAtAction(nameof(GetAllTopics), new { id = newTopic.Id }, topics);
         }
 
-        [HttpPut()]
+        [HttpPut]
         public async Task<IActionResult> UpdateTopic([FromBody] UpdateTopic updatedTopic)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest("Model state not valid");
-            }
 
+            var userId = CurrentUser.GetUserId(HttpContext)!.Value;
             var topicToUpdate = await _context.Topics.FindAsync(updatedTopic.Id);
             if (topicToUpdate == null)
-            {
                 return NotFound("Topic not found.");
-            }
+            if (topicToUpdate.UserId != userId)
+                return Forbid();
 
             topicToUpdate.Name = updatedTopic.Name;
-
             _context.Topics.Update(topicToUpdate);
             await _context.SaveChangesAsync();
 
@@ -110,18 +103,16 @@ namespace Quote_Tracker.Controllers
         public async Task<IActionResult> DeleteTopic(int id)
         {
             if (id <= 0)
-            {
                 return BadRequest("Invalid Topic ID.");
-            }
 
-            var TopicToDelete = await _context.Topics.FindAsync(id);
-
-            if (TopicToDelete == null)
-            {
+            var userId = CurrentUser.GetUserId(HttpContext)!.Value;
+            var topicToDelete = await _context.Topics.FindAsync(id);
+            if (topicToDelete == null)
                 return NotFound($"No Topic found with ID {id}");
-            }
+            if (topicToDelete.UserId != userId)
+                return Forbid();
 
-            _context.Topics.Remove(TopicToDelete);
+            _context.Topics.Remove(topicToDelete);
             await _context.SaveChangesAsync();
 
             return NoContent();

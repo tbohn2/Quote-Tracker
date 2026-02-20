@@ -1,5 +1,6 @@
 using Quote_Tracker.Data;
 using Quote_Tracker.Models;
+using Quote_Tracker.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace Quote_Tracker.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [RequireAuth]
     public class QuoteController : ControllerBase
     {
         private readonly Quote_Tracker_Context _context;
@@ -17,11 +19,13 @@ namespace Quote_Tracker.Controllers
             _context = context;
         }
 
-        // Adjust for pagination later
         [HttpGet]
         public async Task<IActionResult> GetAllQuotes()
         {
-            var quoteList = await _context.Quotes.ToListAsync();
+            var userId = CurrentUser.GetUserId(HttpContext)!.Value;
+            var quoteList = await _context.Quotes
+                .Where(q => q.Book.UserId == userId)
+                .ToListAsync();
 
             return Ok(quoteList);
         }
@@ -30,16 +34,14 @@ namespace Quote_Tracker.Controllers
         public async Task<IActionResult> CreateQuote([FromBody] CreateQuote request)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest("Invalid format; check for missing information (quote or book source).");
-            }
 
+            var userId = CurrentUser.GetUserId(HttpContext)!.Value;
             var book = await _context.Books.FindAsync(request.BookId);
-
             if (book == null)
-            {
                 return BadRequest("Invalid BookId.");
-            }
+            if (book.UserId != userId)
+                return Forbid();
 
             var newQuote = new Quote
             {
@@ -54,6 +56,14 @@ namespace Quote_Tracker.Controllers
             _context.Quotes.Add(newQuote);
             await _context.SaveChangesAsync();
 
+            var userTopicIds = await _context.Topics
+                .Where(t => t.UserId == userId)
+                .Select(t => t.Id)
+                .ToListAsync();
+            var invalidTopicIds = request.TopicIds.Except(userTopicIds).ToList();
+            if (invalidTopicIds.Count != 0)
+                return BadRequest("One or more topic IDs do not belong to you.");
+
             var quoteTopics = request.TopicIds.Select(topicId => new QuoteTopic
             {
                 QuoteId = newQuote.Id,
@@ -66,29 +76,39 @@ namespace Quote_Tracker.Controllers
             return Ok();
         }
 
-        [HttpPut()]
+        [HttpPut]
         public async Task<IActionResult> UpdateQuote([FromBody] UpdateQuote updatedQuote)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest("Model state not valid");
-            }
 
-            var quoteToUpdate = await _context.Quotes.Include(q => q.QuoteTopics).FirstOrDefaultAsync(q => q.Id == updatedQuote.Id);
+            var userId = CurrentUser.GetUserId(HttpContext)!.Value;
+            var quoteToUpdate = await _context.Quotes
+                .Include(q => q.Book)
+                .Include(q => q.QuoteTopics)
+                .FirstOrDefaultAsync(q => q.Id == updatedQuote.Id);
             if (quoteToUpdate == null)
-            {
                 return NotFound("Quote not found.");
-            }
+            if (quoteToUpdate.Book.UserId != userId)
+                return Forbid();
 
             foreach (var property in typeof(UpdateQuote).GetProperties())
             {
-                if (property.Name == "Id") { continue; }
+                if (property.Name == "Id") continue;
 
                 var newValue = property.GetValue(updatedQuote);
                 if (newValue != null)
                 {
                     if (property.Name == "TopicIds" && newValue is List<int> topicIds)
                     {
+                        var userTopicIds = await _context.Topics
+                            .Where(t => t.UserId == userId)
+                            .Select(t => t.Id)
+                            .ToListAsync();
+                        var invalidTopicIds = updatedQuote.TopicIds.Except(userTopicIds).ToList();
+                        if (invalidTopicIds.Count != 0)
+                            return BadRequest("One or more topic IDs do not belong to you.");
+
                         var existingQuoteTopics = await _context.QuoteTopics
                             .Where(qt => qt.QuoteId == quoteToUpdate.Id)
                             .ToListAsync();
@@ -98,9 +118,7 @@ namespace Quote_Tracker.Controllers
                             .ToList();
 
                         if (quoteTopicsToRemove.Count != 0)
-                        {
                             _context.QuoteTopics.RemoveRange(quoteTopicsToRemove);
-                        }
 
                         foreach (var topicId in updatedQuote.TopicIds)
                         {
@@ -117,11 +135,8 @@ namespace Quote_Tracker.Controllers
                     else
                     {
                         var correspondingProperty = typeof(Quote).GetProperty(property.Name);
-
                         if (correspondingProperty != null && correspondingProperty.CanWrite)
-                        {
                             correspondingProperty.SetValue(quoteToUpdate, newValue);
-                        }
                     }
                 }
             }
@@ -136,16 +151,14 @@ namespace Quote_Tracker.Controllers
         public async Task<IActionResult> DeleteQuote(int id)
         {
             if (id <= 0)
-            {
                 return BadRequest("Invalid quote ID.");
-            }
 
-            var quoteToDelete = await _context.Quotes.FindAsync(id);
-
+            var userId = CurrentUser.GetUserId(HttpContext)!.Value;
+            var quoteToDelete = await _context.Quotes.Include(q => q.Book).FirstOrDefaultAsync(q => q.Id == id);
             if (quoteToDelete == null)
-            {
                 return NotFound($"No quote found with ID {id}");
-            }
+            if (quoteToDelete.Book.UserId != userId)
+                return Forbid();
 
             _context.Quotes.Remove(quoteToDelete);
             await _context.SaveChangesAsync();

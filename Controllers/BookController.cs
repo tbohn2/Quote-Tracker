@@ -1,5 +1,6 @@
 using Quote_Tracker.Data;
 using Quote_Tracker.Models;
+using Quote_Tracker.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace Quote_Tracker.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [RequireAuth]
     public class BookController : ControllerBase
     {
         private readonly Quote_Tracker_Context _context;
@@ -17,37 +19,32 @@ namespace Quote_Tracker.Controllers
         {
             _context = context;
         }
-        public async Task<List<Book>?> ReorderBooks(List<BookToReorder> BooksToReorder)
+
+        private async Task<List<Book>?> ReorderBooks(List<BookToReorder> booksToReorder, int userId)
         {
-            if (BooksToReorder == null || BooksToReorder.Count == 0)
-            {
+            if (booksToReorder == null || booksToReorder.Count == 0)
                 return null;
-            }
 
-            var json = JsonSerializer.Serialize(BooksToReorder);
-
-            var existingBooks = await _context.Books.ToListAsync();
-            var bookMap = BooksToReorder.ToDictionary(b => b.Id);
+            var existingBooks = await _context.Books.Where(b => b.UserId == userId).ToListAsync();
+            var bookMap = booksToReorder.ToDictionary(b => b.Id);
 
             foreach (var book in existingBooks)
             {
                 if (bookMap.TryGetValue(book.Id, out var updated))
-                {
                     book.PriorityIndex = updated.PriorityIndex;
-                }
             }
 
             var sortedBooks = existingBooks.OrderBy(b => b.PriorityIndex).ToList();
-
             await _context.SaveChangesAsync();
-
             return sortedBooks;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllBooks()
         {
+            var userId = CurrentUser.GetUserId(HttpContext)!.Value;
             var books = await _context.Books
+                .Where(b => b.UserId == userId)
                 .OrderBy(b => b.PriorityIndex)
                 .Include(b => b.Quotes)
                 .ThenInclude(q => q.QuoteTopics)
@@ -73,12 +70,6 @@ namespace Quote_Tracker.Controllers
                 })
                 .ToListAsync();
 
-
-            if (books.Count == 0)
-            {
-                return NotFound("No books found");
-            }
-
             return Ok(books);
         }
 
@@ -86,12 +77,12 @@ namespace Quote_Tracker.Controllers
         public async Task<IActionResult> CreateBook([FromBody] CreateBook request)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest("Title cannot be empty.");
-            }
+
+            var userId = CurrentUser.GetUserId(HttpContext)!.Value;
 
             var booksToReorder = await _context.Books
-                .Where(b => b.PriorityIndex >= request.PriorityIndex)
+                .Where(b => b.PriorityIndex >= request.PriorityIndex && b.UserId == userId)
                 .OrderBy(b => b.PriorityIndex)
                 .Select(b => new BookToReorder
                 {
@@ -103,49 +94,41 @@ namespace Quote_Tracker.Controllers
             {
                 Title = request.Title,
                 Author = request.Author,
-                PriorityIndex = request.PriorityIndex
+                PriorityIndex = request.PriorityIndex,
+                UserId = userId
             };
 
             _context.Books.Add(newBook);
             await _context.SaveChangesAsync();
 
-            booksToReorder.Add(new BookToReorder
-            {
-                Id = newBook.Id,
-                PriorityIndex = newBook.PriorityIndex
-            });
-
-            var allBooks = await ReorderBooks(booksToReorder);
+            booksToReorder.Add(new BookToReorder { Id = newBook.Id, PriorityIndex = newBook.PriorityIndex });
+            var allBooks = await ReorderBooks(booksToReorder, userId);
 
             return CreatedAtAction(nameof(GetAllBooks), new { id = newBook.Id }, allBooks);
         }
 
         [HttpPost("reorder")]
-        public async Task<IActionResult> ReorderBooksRoute([FromBody] List<BookToReorder> BooksToReorder)
+        public async Task<IActionResult> ReorderBooksRoute([FromBody] List<BookToReorder> booksToReorder)
         {
-            var ReorderedBooks = await ReorderBooks(BooksToReorder);
-            if (ReorderedBooks == null)
-            {
+            var userId = CurrentUser.GetUserId(HttpContext)!.Value;
+            var reorderedBooks = await ReorderBooks(booksToReorder, userId);
+            if (reorderedBooks == null)
                 return BadRequest("No books provided.");
-            }
-
-            return Ok(ReorderedBooks);
+            return Ok(reorderedBooks);
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateBook([FromBody] UpdateBook updatedBook)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest("Model state not valid");
-            }
 
+            var userId = CurrentUser.GetUserId(HttpContext)!.Value;
             var bookToUpdate = await _context.Books.FindAsync(updatedBook.Id);
-
             if (bookToUpdate == null)
-            {
                 return NotFound("Book not found.");
-            }
+            if (bookToUpdate.UserId != userId)
+                return Forbid();
 
             foreach (var property in typeof(UpdateBook).GetProperties())
             {
@@ -154,14 +137,11 @@ namespace Quote_Tracker.Controllers
                 {
                     var correspondingProperty = typeof(Book).GetProperty(property.Name);
                     if (correspondingProperty != null && correspondingProperty.CanWrite)
-                    {
                         correspondingProperty.SetValue(bookToUpdate, newValue);
-                    }
                 }
             }
 
             await _context.SaveChangesAsync();
-
             return Ok(bookToUpdate);
         }
 
@@ -169,29 +149,23 @@ namespace Quote_Tracker.Controllers
         public async Task<IActionResult> DeleteBook(int id)
         {
             if (id <= 0)
-            {
                 return BadRequest("Invalid book ID.");
-            }
 
+            var userId = CurrentUser.GetUserId(HttpContext)!.Value;
             var bookToDelete = await _context.Books.FindAsync(id);
-
             if (bookToDelete == null)
-            {
                 return NotFound($"No book found with ID {id}");
-            }
+            if (bookToDelete.UserId != userId)
+                return Forbid();
 
             var booksToUpdate = await _context.Books
-                .Where(b => b.PriorityIndex > bookToDelete.PriorityIndex)
+                .Where(b => b.UserId == userId && b.PriorityIndex > bookToDelete.PriorityIndex)
                 .ToListAsync();
-
             foreach (var book in booksToUpdate)
-            {
                 book.PriorityIndex--;
-            }
 
             _context.Books.Remove(bookToDelete);
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
     }
